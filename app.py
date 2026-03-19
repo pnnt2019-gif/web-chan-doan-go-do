@@ -1,9 +1,6 @@
 import streamlit as st
 from PIL import Image
-try:
-    from ultralytics import YOLO
-except ImportError:
-    st.error("Vui lòng cài đặt ultralytics: pip install ultralytics")
+from ultralytics import YOLO
 
 # Cấu hình trang web
 st.set_page_config(page_title="Chẩn đoán bệnh lá Gõ đỏ", layout="wide")
