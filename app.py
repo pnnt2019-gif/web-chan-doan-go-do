@@ -92,6 +92,7 @@ if page == "Chẩn đoán bệnh":
         
         with col1:
             st.subheader("Ảnh gốc tải lên")
+            image.thumbnail((640, 640))
             image = Image.open(uploaded_file)
             st.image(image, width=350)
             
