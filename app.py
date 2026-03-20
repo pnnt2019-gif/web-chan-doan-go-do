@@ -92,8 +92,8 @@ if page == "Chẩn đoán bệnh":
         
         with col1:
             st.subheader("Ảnh gốc tải lên")
-            image.thumbnail((640, 640))
             image = Image.open(uploaded_file)
+            image.thumbnail((640, 640))
             st.image(image, width=350)
             
         if st.button('Tiến hành chẩn đoán', type="primary"):
