@@ -1,13 +1,15 @@
 import streamlit as st
 from PIL import Image
-from ultralytics import YOLO
+try:
+    from ultralytics import YOLO
+except ImportError:
+    st.error("Vui lòng cài đặt ultralytics: pip install ultralytics")
 
 # Cấu hình trang web
-st.set_page_config(page_title="Chẩn đoán bệnh lá Gõ đỏ", layout="wide")
+st.set_page_config(page_title="Web Tích hợp CSDL Bệnh lá Gõ đỏ", layout="wide")
 
 # ==========================================
 # CƠ SỞ DỮ LIỆU THÔNG TIN BỆNH HẠI 
-# (Đã cập nhật đầy đủ 9 bệnh theo yêu cầu)
 # ==========================================
 disease_database = {
     "Phấn trắng": {
@@ -17,7 +19,7 @@ disease_database = {
         "Triệu chứng": "Xuất hiện lớp bột màu trắng xám bao phủ trên bề mặt lá và chồi non. Lá bị nhiễm bệnh nặng thường có hiện tượng nhăn nheo, biến dạng, khô và rụng sớm, làm giảm khả năng quang hợp của cây.",
         "Biện pháp phòng trừ": "Cắt tỉa và thu gom các cành, lá bị bệnh mang đi tiêu hủy xa vườn ươm. Chủ động phun phòng hoặc trị bệnh bằng các loại thuốc trừ nấm gốc lưu huỳnh, Anvil 5SC khi bệnh chớm xuất hiện."
     },
-    "Đốm đen": {
+    "Đốm lá": {
         "Trọng tâm": True,
         "Nguyên nhân": "Môi trường vườn ươm đọng nước, độ ẩm không khí cao, mầm bệnh lây lan mạnh qua gió và nước mưa/nước tưới bám trên mặt lá.",
         "Tác nhân": "Nấm Stemphylium sp.",
@@ -61,7 +63,7 @@ disease_database = {
     }
 }
 
-# Tải mô hình YOLO 
+# Tải mô hình YOLO (Sử dụng cache để tiết kiệm RAM)
 @st.cache_resource
 def load_model():
     return YOLO('best.pt') 
@@ -69,15 +71,20 @@ def load_model():
 # ==========================================
 # THANH ĐIỀU HƯỚNG (SIDEBAR)
 # ==========================================
-st.sidebar.title("Hệ thống Web")
+st.sidebar.title("Hệ thống Web Tích hợp CSDL")
 page = st.sidebar.radio("Chọn chức năng:", ["Chẩn đoán bệnh", "Danh mục bệnh hại"])
+
+st.sidebar.markdown("---")
+st.sidebar.write("**Tác giả:** Phạm Nguyễn Nhật Thành")
+st.sidebar.write("**Lớp:** DH22LN")
+st.sidebar.write("**MSSV:** 22114022")
 
 # ==========================================
 # TRANG 1: CHẨN ĐOÁN BỆNH
 # ==========================================
 if page == "Chẩn đoán bệnh":
-    st.title("Tích hợp mô hình chẩn đoán bệnh lá Gõ đỏ")
-    st.write("Tải hình ảnh lá bệnh lên hệ thống để tiến hành nhận diện.")
+    st.title("Tích hợp cơ sở dữ liệu chẩn đoán bệnh lá Gõ đỏ (Nhóm I)")
+    st.write("Tải hình ảnh lá bệnh lên hệ thống để tiến hành nhận diện và truy xuất cơ sở dữ liệu.")
     
     uploaded_file = st.file_uploader("Chọn ảnh định dạng JPG, PNG...", type=["jpg", "jpeg", "png"])
     
@@ -87,7 +94,11 @@ if page == "Chẩn đoán bệnh":
         with col1:
             st.subheader("Ảnh gốc tải lên")
             image = Image.open(uploaded_file)
-            # Đã sửa lỗi tham số width
+            
+            # --- Ép dung lượng ảnh nhỏ lại để chống tràn RAM ---
+            image.thumbnail((640, 640)) 
+            # ---------------------------------------------------
+            
             st.image(image, width=350)
             
         if st.button('Tiến hành chẩn đoán', type="primary"):
@@ -101,7 +112,6 @@ if page == "Chẩn đoán bệnh":
                     
                     with col2:
                         st.subheader("Kết quả khoanh vùng")
-                        # Đã sửa lỗi tham số width
                         st.image(res_plotted, width=350)
                         
                     st.divider()
@@ -133,8 +143,8 @@ if page == "Chẩn đoán bệnh":
 # TRANG 2: DANH MỤC BỆNH HẠI
 # ==========================================
 elif page == "Danh mục bệnh hại":
-    st.title("📚 Danh mục bệnh hại trên lá Gõ đỏ")
-    st.write("Tổng hợp các bệnh hại ghi nhận qua công tác điều tra thực địa:")
+    st.title("📚 Danh mục bệnh hại trên lá Gõ đỏ (Nhóm I)")
+    st.write("Tổng hợp các bệnh hại ghi nhận qua công tác điều tra thực địa để xây dựng cơ sở dữ liệu:")
     
     # Duyệt qua toàn bộ cơ sở dữ liệu để in thông tin
     for ten_benh, thong_tin in disease_database.items():
