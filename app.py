@@ -1,14 +1,15 @@
 import os
 import streamlit as st
-from PIL import Image  # Đã thêm thư viện này để đọc ảnh
+from PIL import Image
 
+# Bắt lỗi chính xác nguyên nhân thay vì báo chung chung
 try:
     from ultralytics import YOLO
-except ImportError:
-    st.error("Thiếu thư viện ultralytics")
+except Exception as e:
+    st.error(f"Lỗi hệ thống ngầm khi tải YOLO: {e}")
     st.stop()
 
-# Tải mô hình YOLO (Sử dụng cache để tiết kiệm RAM)
+# Tải mô hình YOLO
 @st.cache_resource
 def load_model():
     MODEL_PATH = os.path.join(os.path.dirname(__file__), "best.pt")
@@ -150,18 +151,14 @@ elif page == "Danh mục bệnh hại":
     st.title("📚 Danh mục bệnh hại trên lá Gõ đỏ (Nhóm I)")
     st.write("Tổng hợp các bệnh hại ghi nhận qua công tác điều tra thực địa để xây dựng cơ sở dữ liệu:")
     
-    # Duyệt qua toàn bộ cơ sở dữ liệu để in thông tin
     for ten_benh, thong_tin in disease_database.items():
-        # Các bệnh trọng tâm sẽ tự động mở rủ xuống (expanded=True)
         with st.expander(f"Bệnh: {ten_benh}", expanded=thong_tin["Trọng tâm"]):
             st.write(f"**- Nguyên nhân:** {thong_tin['Nguyên nhân']}")
             
-            # Chỉ bệnh trọng tâm mới in Tác nhân
             if thong_tin["Trọng tâm"]:
                 st.write(f"**- Tác nhân:** {thong_tin['Tác nhân']}")
                 
             st.write(f"**- Triệu chứng:** {thong_tin['Triệu chứng']}")
             
-            # Chỉ bệnh trọng tâm mới in Biện pháp phòng trừ
             if thong_tin["Trọng tâm"]:
                 st.write(f"**- Biện pháp phòng trừ:** {thong_tin['Biện pháp phòng trừ']}")
