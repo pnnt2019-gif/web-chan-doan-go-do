@@ -1,5 +1,6 @@
 import os
 import streamlit as st
+from PIL import Image  # Đã thêm thư viện này để đọc ảnh
 
 try:
     from ultralytics import YOLO
@@ -7,10 +8,12 @@ except ImportError:
     st.error("Thiếu thư viện ultralytics")
     st.stop()
 
+# Tải mô hình YOLO (Sử dụng cache để tiết kiệm RAM)
 @st.cache_resource
 def load_model():
     MODEL_PATH = os.path.join(os.path.dirname(__file__), "best.pt")
     return YOLO(MODEL_PATH)
+
 # Cấu hình trang web
 st.set_page_config(page_title="Web Tích hợp CSDL Bệnh lá Gõ đỏ", layout="wide")
 
@@ -68,14 +71,6 @@ disease_database = {
         "Triệu chứng": "Phần thân sát mặt đất (cổ rễ) bị úng nước, chuyển sang màu nâu đen, thối rữa khiến toàn bộ phần thân lá phía trên héo rũ và chết gục."
     }
 }
-
-# Tải mô hình YOLO (Sử dụng cache để tiết kiệm RAM)
-@st.cache_resource
-def load_model():
-    import os
-
-MODEL_PATH = os.path.join(os.path.dirname(__file__), "best.pt")
-return YOLO(MODEL_PATH) 
 
 # ==========================================
 # THANH ĐIỀU HƯỚNG (SIDEBAR)
@@ -146,7 +141,7 @@ if page == "Chẩn đoán bệnh":
                                 st.write("- *Đang cập nhật thêm thông tin cơ sở dữ liệu.*")
                                 
                 except Exception as e:
-                    st.error(f"Có lỗi xảy ra: Hãy đảm bảo file 'best.pt' nằm cùng thư mục và ảnh hợp lệ.")
+                    st.error(f"Có lỗi xảy ra: Hãy đảm bảo file 'best.pt' nằm cùng thư mục và ảnh hợp lệ. Chi tiết lỗi: {e}")
 
 # ==========================================
 # TRANG 2: DANH MỤC BỆNH HẠI
